@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telcel Store — Chips y eSIM Online</title>
+  <meta name="description" content="Compra chips Telcel y eSIM Telcel en línea. Entrega rápida y activación inmediata." />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">📱</span>
+        Telcel Store
+      </a>
+      <nav class="nav-links">
+        <a href="#productos">Productos</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <button class="cart-btn" id="openCart" aria-label="Carrito">
+          🛒 Carrito <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Chips y eSIM Telcel<br />al instante</h1>
+    <p>Compra tu chip físico o eSIM digital de Telcel. Activación rápida, envío a domicilio o entrega por correo en minutos.</p>
+    <div class="hero-badges">
+      <span class="badge">✓ Pago seguro con Clip</span>
+      <span class="badge">✓ eSIM en minutos</span>
+      <span class="badge">✓ Cobertura nacional</span>
+    </div>
+  </section>
+
+  <main class="container" id="productos">
+    <h2 class="section-title">Nuestros productos</h2>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todos</button>
+      <button class="filter-btn" data-filter="chip">Chips físicos</button>
+      <button class="filter-btn" data-filter="esim">eSIM digitales</button>
+    </div>
+    <div class="products-grid" id="productsGrid">
+      <!-- Cargados por JS -->
+    </div>
+  </main>
+
+  <section class="container" id="como-funciona" style="padding-top:0">
+    <h2 class="section-title">¿Cómo funciona?</h2>
+    <div class="products-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      <div class="product-card" style="padding:1.5rem;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem">1️⃣</div>
+        <h3>Elige tu producto</h3>
+        <p style="color:var(--muted);font-size:0.95rem">Chip físico o eSIM digital Telcel según lo que necesites.</p>
+      </div>
+      <div class="product-card" style="padding:1.5rem;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem">2️⃣</div>
+        <h3>Paga con Clip</h3>
+        <p style="color:var(--muted);font-size:0.95rem">Tarjeta de crédito, débito o efectivo en OXXO. 100% seguro.</p>
+      </div>
+      <div class="product-card" style="padding:1.5rem;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem">3️⃣</div>
+        <h3>Recibe y activa</h3>
+        <p style="color:var(--muted);font-size:0.95rem">eSIM por correo en minutos. Chip físico con guía de activación.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p><strong>Telcel Store</strong> — Distribuidor autorizado de chips y eSIM Telcel</p>
+    <p style="margin-top:0.5rem;font-size:0.9rem">Pagos procesados de forma segura por Clip · <a href="/admin">Panel admin</a></p>
+  </footer>
+
+  <!-- Cart drawer -->
+  <div class="overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h2>Tu carrito</h2>
+      <button class="close-btn" id="closeCart">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">$0</span>
+      </div>
+      <button class="btn btn-primary btn-block" id="checkoutBtn" disabled>Pagar con Clip</button>
+    </div>
+  </aside>
+
+  <!-- Checkout modal -->
+  <div class="modal" id="checkoutModal">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content">
+      <h2>Datos de entrega</h2>
+      <form id="checkoutForm">
+        <div class="form-group">
+          <label for="name">Nombre completo *</label>
+          <input type="text" id="name" name="name" required placeholder="Juan Pérez" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Correo electrónico *</label>
+            <input type="email" id="email" name="email" required placeholder="juan@email.com" />
+          </div>
+          <div class="form-group">
+            <label for="phone">Teléfono *</label>
+            <input type="tel" id="phone" name="phone" required placeholder="55 1234 5678" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="address">Dirección de envío (solo chips físicos)</label>
+          <textarea id="address" name="address" rows="2" placeholder="Calle, número, colonia, CP, ciudad"></textarea>
+        </div>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem">
+          Las eSIM se envían al correo. Los chips físicos se envían a la dirección indicada.
+        </p>
+        <button type="submit" class="btn btn-primary btn-block" id="payBtn">
+          Continuar al pago
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

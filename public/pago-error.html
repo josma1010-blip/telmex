@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pago no completado — Telcel Store</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
+    .result-card { background: white; padding: 2.5rem; border-radius: 20px; max-width: 440px; text-align: center; box-shadow: var(--shadow); }
+    .result-icon { font-size: 4rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="result-card">
+    <div class="result-icon">❌</div>
+    <h1 style="color:var(--danger);margin-bottom:0.5rem">Pago no completado</h1>
+    <p style="color:var(--muted);margin-bottom:1.5rem">
+      El pago de la orden <strong id="orderNum">—</strong> no se pudo completar.
+      Puedes intentar de nuevo desde la tienda.
+    </p>
+    <a href="/" class="btn btn-primary">Volver a la tienda</a>
+  </div>
+  <script>
+    const order = new URLSearchParams(location.search).get('order');
+    if (order) document.getElementById('orderNum').textContent = order;
+  </script>
+</body>
+</html>

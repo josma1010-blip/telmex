@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pago exitoso — Telcel Store</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
+    .result-card { background: white; padding: 2.5rem; border-radius: 20px; max-width: 440px; text-align: center; box-shadow: var(--shadow); }
+    .result-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .sync-status { font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <div class="result-card">
+    <div class="result-icon" id="icon">⏳</div>
+    <h1 id="title" style="color:var(--telcel-blue);margin-bottom:0.5rem">Confirmando pago…</h1>
+    <p style="color:var(--muted);margin-bottom:1rem">
+      Orden <strong id="orderNum">—</strong>
+    </p>
+    <div id="orderInfo" style="text-align:left;background:#f8fafc;padding:1rem;border-radius:12px;margin-bottom:1rem;font-size:0.9rem"></div>
+    <p class="sync-status" id="syncMsg">Sincronizando con Clip…</p>
+    <a href="/" class="btn btn-primary" style="margin-top:1rem">Volver a la tienda</a>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const order = params.get('order');
+    const icon = document.getElementById('icon');
+    const title = document.getElementById('title');
+    const syncMsg = document.getElementById('syncMsg');
+    const orderInfo = document.getElementById('orderInfo');
+
+    if (order) {
+      document.getElementById('orderNum').textContent = order;
+    }
+
+    async function loadOrder() {
+      if (!order) return null;
+      const res = await fetch('/api/orders/' + encodeURIComponent(order));
+      if (!res.ok) return null;
+      return res.json();
+    }
+
+    async function syncOrder() {
+      if (!order) return null;
+      try {
+        const res = await fetch('/api/orders/' + encodeURIComponent(order) + '/sync', { method: 'POST' });
+        return res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    function render(data, sync) {
+      if (!data) {
+        icon.textContent = '❓';
+        title.textContent = 'Orden no encontrada';
+        title.style.color = 'var(--danger)';
+        syncMsg.textContent = '';
+        return;
+      }
+
+      const status = (sync && sync.status) || data.status;
+      const receipt = (sync && sync.receipt_no) || data.receipt_no;
+
+      orderInfo.innerHTML = `
+        <p><strong>Cliente:</strong> ${data.customer_name || '—'}</p>
+        <p><strong>Total:</strong> $${Number(data.total).toFixed(2)} MXN</p>
+        <p><strong>Estado:</strong> ${status}</p>
+        ${receipt ? `<p><strong>Recibo Clip:</strong> ${receipt}</p>` : ''}
+        <ul style="margin-top:0.5rem">
+          ${(data.items || []).map(i => `<li>${i.quantity}× ${i.product_name}</li>`).join('')}
+        </ul>
+      `;
+
+      if (status === 'paid') {
+        icon.textContent = '✅';
+        title.textContent = '¡Pago recibido!';
+        title.style.color = 'var(--success)';
+        syncMsg.textContent = receipt
+          ? 'Confirmado por Clip · Recibo ' + receipt
+          : 'Pago confirmado. Recibirás un correo con las instrucciones.';
+      } else if (status === 'failed' || status === 'cancelled') {
+        icon.textContent = '❌';
+        title.textContent = 'Pago no completado';
+        title.style.color = 'var(--danger)';
+        syncMsg.textContent = 'El pago no se completó. Puedes intentar de nuevo.';
+      } else {
+        icon.textContent = '⏳';
+        title.textContent = 'Pago en proceso';
+        title.style.color = 'var(--telcel-blue)';
+        syncMsg.textContent = 'Esperando confirmación de Clip… (se actualiza sola)';
+      }
+    }
+
+    (async () => {
+      let data = await loadOrder();
+      render(data);
+
+      // Sincronizar con Clip (por si el webhook aún no llegó)
+      const sync = await syncOrder();
+      data = await loadOrder();
+      render(data, sync);
+
+      // Reintentar unas veces si sigue pendiente
+      if (data && data.status === 'pending') {
+        let attempts = 0;
+        const timer = setInterval(async () => {
+          attempts++;
+          const s = await syncOrder();
+          data = await loadOrder();
+          render(data, s);
+          if (!data || data.status !== 'pending' || attempts >= 6) {
+            clearInterval(timer);
+            if (data && data.status === 'pending') {
+              syncMsg.textContent = 'Aún pendiente. Te avisaremos por correo cuando se confirme.';
+            }
+          }
+        }, 4000);
+      }
+    })();
+  </script>
+</body>
+</html>

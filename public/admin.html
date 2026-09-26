@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de control — Telcel Store</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px; background: var(--telcel-blue); color: white; padding: 1.5rem 0;
+      flex-shrink: 0;
+    }
+    .sidebar .logo { padding: 0 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem; }
+    .sidebar nav a {
+      display: block; padding: 0.75rem 1.25rem; color: rgba(255,255,255,0.8);
+      font-weight: 500; transition: all 0.15s; cursor: pointer;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(255,255,255,0.1); color: white;
+    }
+    .main-admin { flex: 1; padding: 1.5rem 2rem; overflow-x: auto; background: var(--bg); }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white; border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow);
+    }
+    .stat-card .label { font-size: 0.85rem; color: var(--muted); }
+    .stat-card .value { font-size: 1.75rem; font-weight: 800; color: var(--telcel-blue); margin-top: 0.25rem; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+    th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; vertical-align: middle; }
+    th { background: #f8fafc; font-weight: 600; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .status {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    }
+    .status.paid, .status.delivered { background: #d1fae5; color: #065f46; }
+    .status.pending { background: #fef3c7; color: #92400e; }
+    .status.processing, .status.shipped { background: #dbeafe; color: #1e40af; }
+    .status.failed, .status.cancelled { background: #fee2e2; color: #991b1b; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .toolbar { display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+    .prod-thumb {
+      width: 48px; height: 48px; object-fit: cover; border-radius: 8px; background: #f0f0f0;
+    }
+    .img-preview-box {
+      width: 120px; height: 120px; border: 2px dashed #ddd; border-radius: 12px;
+      display: grid; place-items: center; overflow: hidden; background: #fafafa; margin-bottom: 0.5rem;
+    }
+    .img-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+    .price-input {
+      width: 100px; padding: 0.35rem 0.5rem; border: 1.5px solid #e5e7eb; border-radius: 8px; font-weight: 600;
+    }
+    .price-input:focus { outline: none; border-color: var(--telcel-pink); }
+    .stock-input {
+      width: 70px; padding: 0.35rem 0.5rem; border: 1.5px solid #e5e7eb; border-radius: 8px;
+    }
+    @media (max-width: 768px) {
+      .admin-layout { flex-direction: column; }
+      .sidebar { width: 100%; }
+      .sidebar nav { display: flex; overflow-x: auto; }
+      .sidebar nav a { white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="logo">
+        <strong>📱 Telcel Store</strong>
+        <div style="font-size:0.8rem;opacity:0.7;margin-top:0.25rem">Panel de control</div>
+      </div>
+      <nav>
+        <a href="#" class="active" data-panel="dashboard">Dashboard</a>
+        <a href="#" data-panel="orders">Órdenes</a>
+        <a href="#" data-panel="products">Productos</a>
+        <a href="#" data-panel="webhooks">Webhooks Clip</a>
+        <a href="/" target="_blank">Ver tienda</a>
+        <a href="#" id="logoutBtn" style="margin-top:2rem;color:#fca5a5">Cerrar sesión</a>
+      </nav>
+    </aside>
+
+    <main class="main-admin">
+      <!-- Dashboard -->
+      <div class="panel active" id="panel-dashboard">
+        <h1 style="margin-bottom:1.5rem">Dashboard</h1>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><div class="label">Órdenes totales</div><div class="value" id="statOrders">—</div></div>
+          <div class="stat-card"><div class="label">Pagadas</div><div class="value" id="statPaid">—</div></div>
+          <div class="stat-card"><div class="label">Ingresos</div><div class="value" id="statRevenue">—</div></div>
+          <div class="stat-card"><div class="label">Pendientes</div><div class="value" id="statPending">—</div></div>
+          <div class="stat-card"><div class="label">Stock bajo</div><div class="value" id="statLow">—</div></div>
+        </div>
+        <h2 style="margin-bottom:1rem;font-size:1.15rem">Últimas órdenes</h2>
+        <div id="recentOrders"></div>
+      </div>
+
+      <!-- Orders -->
+      <div class="panel" id="panel-orders">
+        <h1 style="margin-bottom:1rem">Órdenes</h1>
+        <div class="toolbar">
+          <select id="orderFilter" style="padding:0.5rem 0.8rem;border-radius:8px;border:1.5px solid #e5e7eb">
+            <option value="">Todas</option>
+            <option value="pending">Pendientes</option>
+            <option value="paid">Pagadas</option>
+            <option value="processing">Procesando</option>
+            <option value="shipped">Enviadas</option>
+            <option value="delivered">Entregadas</option>
+            <option value="failed">Fallidas</option>
+            <option value="cancelled">Canceladas</option>
+          </select>
+          <button class="btn btn-outline btn-sm" id="refreshOrders">Actualizar</button>
+        </div>
+        <div id="ordersTable"></div>
+      </div>
+
+      <!-- Products -->
+      <div class="panel" id="panel-products">
+        <h1 style="margin-bottom:1rem">Productos</h1>
+        <div class="toolbar">
+          <button class="btn btn-primary btn-sm" id="newProductBtn">+ Nuevo producto</button>
+          <button class="btn btn-outline btn-sm" id="refreshProducts">Actualizar</button>
+        </div>
+        <div id="productsTable"></div>
+      </div>
+
+      <!-- Webhooks -->
+      <div class="panel" id="panel-webhooks">
+        <h1 style="margin-bottom:1rem">Webhooks Clip</h1>
+        <p style="color:var(--muted);margin-bottom:1rem;font-size:0.95rem">
+          Eventos recibidos de Clip. Endpoint: <code>/api/webhooks/clip</code>
+        </p>
+        <div class="toolbar">
+          <button class="btn btn-outline btn-sm" id="refreshWebhooks">Actualizar</button>
+        </div>
+        <div id="webhooksTable"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal producto -->
+  <div class="modal" id="productModal">
+    <div class="modal-backdrop" id="productModalBg"></div>
+    <div class="modal-content" style="width:min(520px,100%)">
+      <h2 id="productModalTitle">Nuevo producto</h2>
+      <form id="productForm">
+        <input type="hidden" id="productId" />
+        <input type="hidden" id="pImageUrl" />
+
+        <div class="form-group">
+          <label>Imagen del producto</label>
+          <div class="img-preview-box" id="imgPreview">
+            <span style="color:#aaa;font-size:0.85rem;text-align:center;padding:0.5rem">Sin imagen</span>
+          </div>
+          <input type="file" id="pImageFile" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" />
+          <p style="font-size:0.8rem;color:var(--muted);margin-top:0.35rem">JPG, PNG, WebP o SVG · máx. 3 MB</p>
+        </div>
+
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" id="pName" required placeholder="Chip Telcel Prepago" />
+        </div>
+        <div class="form-group">
+          <label>Slug (url) *</label>
+          <input type="text" id="pSlug" required placeholder="chip-telcel-prepago" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo *</label>
+            <select id="pType" required>
+              <option value="chip">Chip físico</option>
+              <option value="esim">eSIM</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Precio (MXN) *</label>
+            <input type="number" id="pPrice" step="0.01" min="0" required placeholder="50.00" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Stock</label>
+          <input type="number" id="pStock" min="0" value="0" />
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="pDesc" rows="3" placeholder="Descripción del producto"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Características (una por línea)</label>
+          <textarea id="pFeatures" rows="3" placeholder="Activación inmediata&#10;Cobertura nacional"></textarea>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="pActive" checked /> Producto activo (visible en la tienda)</label>
+        </div>
+        <div style="display:flex;gap:0.5rem">
+          <button type="submit" class="btn btn-primary" style="flex:1" id="saveProductBtn">Guardar producto</button>
+          <button type="button" class="btn btn-outline" id="cancelProductBtn">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal orden detalle -->
+  <div class="modal" id="orderModal">
+    <div class="modal-backdrop" id="orderModalBg"></div>
+    <div class="modal-content" style="width:min(560px,100%)">
+      <h2>Detalle de orden</h2>
+      <div id="orderDetail"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
