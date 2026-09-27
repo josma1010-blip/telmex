@@ -1,9 +1,17 @@
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const helmet = require('helmet');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
+
+// Directorio donde se guardan las sesiones (persistente, no MemoryStore)
+const SESSIONS_DIR = process.env.SESSIONS_DIR || path.join(__dirname, 'sessions');
+if (!fs.existsSync(SESSIONS_DIR)) {
+  fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+}
 
 // Cargar store (inicializa JSON si no existe)
 require('./db/store');
@@ -22,6 +30,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
+  store: new FileStore({
+    path: SESSIONS_DIR,
+    ttl: 24 * 60 * 60,
+    retries: 1,
+    logFn: () => {} // silenciar logs internos del store
+  }),
   secret: process.env.SESSION_SECRET || 'telcel-store-dev-secret-change-me',
   resave: false,
   saveUninitialized: false,
