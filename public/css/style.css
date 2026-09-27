@@ -47,6 +47,22 @@ img {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
+.banner-image {
+  width: calc(100% + 3rem);
+  margin: -0.75rem -1.5rem 0.75rem -1.5rem;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.banner-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 120px;
+  min-height: 60px;
+  object-fit: cover;
+}
+
 .header-inner {
   max-width: 1200px;
   margin: 0 auto;
@@ -612,5 +628,13 @@ img {
   }
   .hero {
     padding: 2.5rem 1rem;
+  }
+  .banner-image {
+    width: calc(100% + 2rem);
+    margin: -0.75rem -1rem 0.75rem -1rem;
+  }
+  .banner-image img {
+    max-height: 90px;
+    min-height: 48px;
   }
 }
