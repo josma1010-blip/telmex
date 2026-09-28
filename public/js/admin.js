@@ -280,6 +280,7 @@
                 <td style="white-space:nowrap">
                   <button class="btn btn-primary btn-sm" data-quick-save="${p.id}">Guardar</button>
                   <button class="btn btn-outline btn-sm" data-edit="${p.id}">Editar</button>
+                  <button class="btn btn-outline btn-sm" data-copy-link="${escapeHtml(p.slug)}">Copiar link</button>
                 </td>
               </tr>
             `).join('')}
@@ -325,6 +326,20 @@
     if (!btn) return;
     const p = (window._products || []).find(x => x.id === Number(btn.dataset.edit));
     if (p) openProductModal(p);
+  });
+
+  // Copiar link del producto
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-copy-link]');
+    if (!btn) return;
+    const slug = btn.dataset.copyLink;
+    const url = `${window.location.origin}/producto/${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('Link copiado al portapapeles', 'success');
+    } catch (ex) {
+      showToast('No se pudo copiar el link', 'error');
+    }
   });
 
   // Guardar rápido precio/stock/activo desde la tabla
