@@ -55,6 +55,7 @@ app.get('/admin/login', (req, res) => res.sendFile(path.join(__dirname, 'public'
 app.get('/pago/exito', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pago-exito.html')));
 app.get('/pago/error', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pago-error.html')));
 app.get('/carrito', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/producto/:slug', (req, res) => res.sendFile(path.join(__dirname, 'public', 'producto.html')));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

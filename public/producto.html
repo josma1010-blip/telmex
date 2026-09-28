@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="pageTitle">Producto — Telcel Store</title>
+  <meta name="description" id="pageDescription" content="Compra chips Telcel y eSIM Telcel en línea. Entrega rápida y activación inmediata." />
+
+  <!-- Open Graph / social sharing meta -->
+  <meta property="og:title" id="ogTitle" content="Telcel Store" />
+  <meta property="og:description" id="ogDescription" content="Compra chips Telcel y eSIM Telcel en línea." />
+  <meta property="og:image" id="ogImage" content="/img/chip.svg" />
+  <meta property="og:type" content="product" />
+  <meta property="og:url" id="ogUrl" content="" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="banner-image">
+      <img src="https://satelite-internet.com/wp-content/uploads/2026/09/ChatGPT-Image-Sep-19-2026-12_46_07-AM.png" alt="Promotional banner" />
+    </div>
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">📱</span>
+        Telcel Store
+      </a>
+      <nav class="nav-links">
+        <a href="/#productos">Productos</a>
+        <a href="/#como-funciona">Cómo funciona</a>
+        <button class="cart-btn" id="openCart" aria-label="Carrito">
+          🛒 Carrito <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="productoContainer">
+    <p style="margin-bottom:1.25rem">
+      <a href="/">&larr; Volver a la tienda</a>
+    </p>
+
+    <div id="productoLoading" style="text-align:center;padding:3rem 1rem;color:var(--muted)">
+      Cargando producto...
+    </div>
+
+    <div id="productoError" style="display:none;text-align:center;padding:3rem 1rem">
+      <h2 style="margin-bottom:0.75rem">Producto no encontrado</h2>
+      <p style="color:var(--muted);margin-bottom:1.5rem">El producto que buscas no existe o ya no está disponible.</p>
+      <a href="/" class="btn btn-primary">Volver a la tienda</a>
+    </div>
+
+    <article id="productoDetail" style="display:none">
+      <div class="product-detail-grid" style="display:grid;grid-template-columns:1fr;gap:2rem;max-width:900px;margin:0 auto;">
+        <div class="product-detail-media" style="position:relative;background:linear-gradient(135deg, #eef2ff, #fce7f3);border-radius:var(--radius);box-shadow:var(--shadow);display:grid;place-items:center;padding:2.5rem 1.5rem;">
+          <span class="type-tag" id="productoType">CHIP</span>
+          <img id="productoImage" src="/img/chip.svg" alt="" style="width:220px;height:220px;max-width:100%;" onerror="this.src='/img/chip.svg'" />
+        </div>
+
+        <div class="product-detail-info">
+          <h1 id="productoName" style="font-size:2rem;font-weight:800;margin-bottom:0.75rem;color:var(--telcel-blue)"></h1>
+          <div class="price" id="productoPrice" style="font-size:2rem;margin-bottom:0.5rem"></div>
+          <div id="productoStock" style="font-weight:600;margin-bottom:1.25rem"></div>
+          <p id="productoDescription" style="color:var(--muted);font-size:1.05rem;margin-bottom:1.25rem"></p>
+          <ul class="features-list" id="productoFeatures" style="margin-bottom:1.5rem"></ul>
+          <button class="btn btn-primary btn-block" id="addToCartBtn" style="font-size:1.05rem;padding:0.9rem 1.2rem">
+            Agregar al carrito
+          </button>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <p><strong>Telcel Store</strong> — Distribuidor autorizado de chips y eSIM Telcel</p>
+    <p style="margin-top:0.5rem;font-size:0.9rem">Pagos procesados de forma segura por Clip · <a href="/admin">Panel admin</a></p>
+  </footer>
+
+  <!-- Cart drawer -->
+  <div class="overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h2>Tu carrito</h2>
+      <button class="close-btn" id="closeCart">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">$0</span>
+      </div>
+      <button class="btn btn-primary btn-block" id="checkoutBtn" disabled>Ir a la tienda para pagar</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/producto.js"></script>
+</body>
+</html>
