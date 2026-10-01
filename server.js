@@ -17,6 +17,7 @@ if (!fs.existsSync(SESSIONS_DIR)) {
 require('./db/store');
 
 const apiRoutes = require('./routes/api');
+const { sendTelegramNotification } = require('./services/telegram');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,6 +46,16 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
+
+// Notifica por Telegram cada visita a la página principal.
+// Debe ir antes de express.static, que serviría index.html para GET / sin pasar por la ruta.
+app.get('/', (req, res, next) => {
+  const timestamp = new Date().toISOString();
+  const userAgent = req.get('user-agent') || 'desconocido';
+  // No bloquea la respuesta; sendTelegramNotification no lanza errores
+  sendTelegramNotification(`👤 Alguien visitó la tienda - ${timestamp} - ${userAgent} - IP: ${req.ip}`);
+  next();
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', apiRoutes);
