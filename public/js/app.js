@@ -178,9 +178,8 @@
     payBtn.innerHTML = '<span class="spinner"></span> Procesando...';
 
     const selectedLada = $('#lada').value;
-    const hasChip = cart.some(i => i.type === 'chip');
-    if (hasChip && !selectedLada) {
-      showToast('Selecciona una clave LADA para tu chip físico', 'error');
+    if (!selectedLada) {
+      showToast('Selecciona una clave LADA (obligatoria para chips físicos y eSIM)', 'error');
       $('#lada').focus();
       payBtn.disabled = false;
       payBtn.textContent = 'Continuar al pago';
