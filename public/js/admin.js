@@ -130,6 +130,7 @@
         <p><strong>Email:</strong> ${order.customer_email}</p>
         <p><strong>Teléfono:</strong> ${order.customer_phone}</p>
         ${order.customer_address ? `<p><strong>Dirección:</strong> ${order.customer_address}</p>` : ''}
+        ${order.customer_lada ? `<p><strong>Número LADA:</strong> ${order.customer_lada}</p>` : ''}
         <p><strong>Total:</strong> ${formatPrice(order.total)}</p>
         <p><strong>Estado:</strong> ${statusBadge(order.status)}</p>
         <p><strong>Clip:</strong> ${order.clip_status || '—'} ${order.receipt_no ? '· Recibo: ' + order.receipt_no : ''}</p>
