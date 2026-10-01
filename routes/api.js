@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const store = require('../db/store');
 const clip = require('../services/clip');
+const { sendTelegramNotification } = require('../services/telegram');
 const { requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -97,6 +98,15 @@ router.post('/checkout', async (req, res) => {
       store.order_items.push({ id: itemId, order_id: orderId, ...li });
     }
     store.save();
+
+    // Notificación por Telegram (no bloquea la respuesta al cliente)
+    const itemsText = lineItems.map(i => `${i.quantity}x ${i.product_name}`).join(', ');
+    sendTelegramNotification(
+      '🆕 Nuevo pedido #' + orderNumber + '\n' +
+      '👤 ' + order.customer_name + '\n' +
+      '📦 ' + itemsText + '\n' +
+      '💰 $' + total + ' MXN'
+    ).catch(() => {});
 
     if (!clip.isConfigured()) {
       order.status = 'paid';
