@@ -177,11 +177,22 @@
     payBtn.disabled = true;
     payBtn.innerHTML = '<span class="spinner"></span> Procesando...';
 
+    const selectedLada = $('#lada').value;
+    const hasChip = cart.some(i => i.type === 'chip');
+    if (hasChip && !selectedLada) {
+      showToast('Selecciona una clave LADA para tu chip físico', 'error');
+      $('#lada').focus();
+      payBtn.disabled = false;
+      payBtn.textContent = 'Continuar al pago';
+      return;
+    }
+
     const customer = {
       name: $('#name').value.trim(),
       email: $('#email').value.trim(),
       phone: $('#phone').value.trim(),
-      address: $('#address').value.trim()
+      address: $('#address').value.trim(),
+      lada: selectedLada
     };
 
     const items = cart.map(i => ({

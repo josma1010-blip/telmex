@@ -41,6 +41,14 @@ router.post('/checkout', async (req, res) => {
       return res.status(400).json({ error: 'Datos de cliente incompletos' });
     }
 
+    const hasChip = items.some(item => {
+      const p = store.products.find(x => x.id === item.productId);
+      return p && p.type === 'chip';
+    });
+    if (hasChip && !customer.lada) {
+      return res.status(400).json({ error: 'Selecciona una clave LADA para el chip físico' });
+    }
+
     let total = 0;
     const lineItems = [];
     for (const item of items) {
@@ -71,6 +79,7 @@ router.post('/checkout', async (req, res) => {
       customer_email: customer.email.trim().toLowerCase(),
       customer_phone: customer.phone.trim(),
       customer_address: customer.address || null,
+      customer_lada: customer.lada ? String(customer.lada).trim() : null,
       total,
       status: 'pending',
       payment_request_id: null,
