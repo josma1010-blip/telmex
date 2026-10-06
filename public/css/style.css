@@ -151,7 +151,12 @@ img {
   overflow: hidden;
   background:
     radial-gradient(circle at 85% 15%, rgba(228, 0, 124, 0.45) 0%, transparent 45%),
-    linear-gradient(160deg, var(--telcel-blue) 0%, #004d99 50%, var(--telcel-light) 100%);
+    linear-gradient(160deg, rgba(0, 40, 85, 0.88) 0%, rgba(0, 77, 153, 0.8) 50%, rgba(0, 169, 224, 0.72) 100%),
+    url("https://satelite-internet.com/wp-content/uploads/2026/09/ChatGPT-Image-Sep-19-2026-12_46_07-AM.png");
+  background-color: var(--telcel-blue);
+  background-size: auto, auto, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
   color: white;
   padding: 5rem 1.5rem;
   text-align: center;
@@ -707,6 +712,7 @@ img {
   }
   .hero {
     padding: 3rem 1rem;
+    background-position: center, center, 65% center;
   }
   .hero-cta {
     flex-direction: column;
